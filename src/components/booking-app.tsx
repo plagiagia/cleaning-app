@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { createBooking, getBookedTimeSlots } from "@/app/actions/booking";
 import {
@@ -109,21 +110,20 @@ export function BookingApp({ services }: BookingAppProps) {
 
   return (
     <div className="min-h-full bg-gradient-to-b from-sky-50 via-white to-teal-50/40">
-      <header className="sticky top-0 z-10 border-b border-white/60 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto max-w-md px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-400 to-sky-400 text-xl shadow-md shadow-teal-500/20">
-              🫧
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-teal-600">
-                Καθαριότητα &amp; απεντόμωση
-              </p>
-              <h1 className="text-xl font-bold text-slate-900">S.cleaning</h1>
-            </div>
+      <header className="sticky top-0 z-10 border-b border-slate-200/60 bg-white">
+        <div className="mx-auto max-w-md px-4 pb-4 pt-[max(0.75rem,env(safe-area-inset-top))]">
+          <div className="flex justify-center">
+            <Image
+              src="/logo.png"
+              alt="S.cleaning — Υπηρεσίες Καθαρισμού"
+              width={320}
+              height={213}
+              priority
+              className="h-auto w-full max-w-[280px] object-contain"
+            />
           </div>
 
-          <p className="mt-3 text-sm leading-relaxed text-slate-600">
+          <p className="mt-3 text-center text-sm leading-relaxed text-slate-600">
             Κλείστε ραντεβού σε λίγα λεπτά. Επιλέξτε ημερομηνία, ώρα και υπηρεσία — η τιμή
             καθορίζεται κατόπιν συνεννόησης.
           </p>

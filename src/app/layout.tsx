@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: "S.cleaning — Κλείστε καθαρισμό",
   description:
     "Υπηρεσίες καθαρισμού και απεντόμωσης στη Νέα Πλαγιά Χαλκιδικής. Κλείστε ραντεβού — η τιμή καθορίζεται κατόπιν συνεννόησης.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export const viewport: Viewport = {
