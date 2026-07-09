@@ -38,7 +38,7 @@ export function ServiceCard({ service, selected, disabled, onSelect }: ServiceCa
                 </span>
               ) : null}
             </div>
-            <p className="shrink-0 text-lg font-bold text-teal-600">£{service.price}</p>
+            <p className="shrink-0 text-lg font-bold text-teal-600">{service.price} €</p>
           </div>
 
           <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>

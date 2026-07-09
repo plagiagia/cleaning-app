@@ -16,7 +16,7 @@ export function BottomBar({ service, dateLabel, timeLabel, canContinue }: Bottom
         <div className="mb-3 flex items-center justify-between gap-3 text-sm">
           <div className="min-w-0">
             <p className="truncate font-medium text-slate-900">
-              {service ? service.name : "Select a service"}
+              {service ? service.name : "Επιλέξτε υπηρεσία"}
             </p>
             <p className="truncate text-slate-500">
               {dateLabel}
@@ -24,7 +24,7 @@ export function BottomBar({ service, dateLabel, timeLabel, canContinue }: Bottom
             </p>
           </div>
           <p className="shrink-0 text-xl font-bold text-teal-600">
-            {service ? `£${service.price}` : "—"}
+            {service ? `${service.price} €` : "—"}
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export function BottomBar({ service, dateLabel, timeLabel, canContinue }: Bottom
               : "cursor-not-allowed bg-slate-200 text-slate-500"
           }`}
         >
-          Continue
+          Συνέχεια
         </button>
       </div>
     </div>

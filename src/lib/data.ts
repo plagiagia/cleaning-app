@@ -3,50 +3,50 @@ import type { DayAvailability, Service } from "./types";
 export const SERVICES: Service[] = [
   {
     id: "standard",
-    name: "Standard Clean",
-    description: "Dusting, vacuuming, kitchen & bathroom wipe-down.",
-    duration: "2–3 hrs",
+    name: "Τυπικός καθαρισμός",
+    description: "Σκούπισμα, απορρόφηση, καθάρισμα κουζίνας και μπάνιου.",
+    duration: "2–3 ώρες",
     price: 89,
     emoji: "✨",
-    tag: "Popular",
+    tag: "Δημοφιλές",
   },
   {
     id: "deep",
-    name: "Deep Clean",
-    description: "Detailed scrubbing, inside appliances, hard-to-reach spots.",
-    duration: "4–5 hrs",
+    name: "Βαθύς καθαρισμός",
+    description: "Λεπτομερές τρίψιμο, εσωτερικά συσκευών, δύσκολα σημεία.",
+    duration: "4–5 ώρες",
     price: 149,
     emoji: "🧼",
   },
   {
     id: "move-out",
-    name: "Move-out Clean",
-    description: "Full top-to-bottom clean for handing back keys.",
-    duration: "5–6 hrs",
+    name: "Καθαρισμός μετά από μετακόμιση",
+    description: "Πλήρης καθαρισμός από πάνω μέχρι κάτω για παράδοση κλειδιών.",
+    duration: "5–6 ώρες",
     price: 199,
     emoji: "📦",
   },
   {
     id: "kitchen",
-    name: "Kitchen Focus",
-    description: "Counters, cabinets, oven, fridge & floor deep clean.",
-    duration: "2–3 hrs",
+    name: "Εστίαση κουζίνας",
+    description: "Πάγκοι, ντουλάπια, φούρνος, ψυγείο και δάπεδο.",
+    duration: "2–3 ώρες",
     price: 79,
     emoji: "🍳",
   },
   {
     id: "windows",
-    name: "Window Cleaning",
-    description: "Interior windows, frames & sills — per visit.",
-    duration: "1–2 hrs",
+    name: "Καθαρισμός παραθύρων",
+    description: "Εσωτερικά παράθυρα, κουφώματα και κάγκελα — ανά επίσκεψη.",
+    duration: "1–2 ώρες",
     price: 59,
     emoji: "🪟",
   },
   {
     id: "office",
-    name: "Office Clean",
-    description: "Desks, common areas & restrooms for small offices.",
-    duration: "2–4 hrs",
+    name: "Καθαρισμός γραφείου",
+    description: "Γραφεία, κοινόχρηστοι χώροι και τουαλέτες για μικρά γραφεία.",
+    duration: "2–4 ώρες",
     price: 119,
     emoji: "💼",
   },
@@ -55,12 +55,12 @@ export const SERVICES: Service[] = [
 const ALL_SERVICE_IDS = SERVICES.map((s) => s.id);
 
 const TIME_TEMPLATES = [
-  { id: "08:00", label: "8:00 AM" },
-  { id: "10:00", label: "10:00 AM" },
-  { id: "12:00", label: "12:00 PM" },
-  { id: "14:00", label: "2:00 PM" },
-  { id: "16:00", label: "4:00 PM" },
-  { id: "18:00", label: "6:00 PM" },
+  { id: "08:00", label: "08:00" },
+  { id: "10:00", label: "10:00" },
+  { id: "12:00", label: "12:00" },
+  { id: "14:00", label: "14:00" },
+  { id: "16:00", label: "16:00" },
+  { id: "18:00", label: "18:00" },
 ];
 
 function unavailableSlotIds(date: Date): Set<string> {
@@ -108,7 +108,7 @@ export function toDateKey(date: Date): string {
 }
 
 export function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", { weekday: "short" });
+  return date.toLocaleDateString("el-GR", { weekday: "short" });
 }
 
 export function formatDayNumber(date: Date): string {
@@ -116,7 +116,7 @@ export function formatDayNumber(date: Date): string {
 }
 
 export function formatLongDate(date: Date): string {
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("el-GR", {
     weekday: "long",
     day: "numeric",
     month: "long",

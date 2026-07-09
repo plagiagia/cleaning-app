@@ -17,10 +17,10 @@ export function ServiceCatalogue({
   onSelect,
 }: ServiceCatalogueProps) {
   return (
-    <section aria-label="Service catalogue">
+    <section aria-label="Κατάλογος υπηρεσιών">
       <div className="mb-3 flex items-end justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Services & prices</h2>
-        <span className="text-sm text-slate-500">{availableIds.length} available</span>
+        <h2 className="text-lg font-semibold text-slate-900">Υπηρεσίες &amp; τιμές</h2>
+        <span className="text-sm text-slate-500">{availableIds.length} διαθέσιμες</span>
       </div>
 
       <div className="space-y-3">

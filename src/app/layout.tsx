@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito } from "next/font/google";
+import { Noto_Sans } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
-  subsets: ["latin"],
-  variable: "--font-nunito",
+const notoSans = Noto_Sans({
+  subsets: ["latin", "greek"],
+  variable: "--font-noto",
 });
 
 export const metadata: Metadata = {
-  title: "Sparkle Clean — Book a cleaning",
-  description: "Mobile-friendly cleaning service booking. Pick a date, choose a time, browse services with upfront pricing.",
+  title: "S.cleaning — Κλείστε καθαρισμό",
+  description:
+    "Υπηρεσίες καθαρισμού στη Νέα Πλαγιά Χαλκιδικής. Επιλέξτε ημερομηνία, ώρα και υπηρεσία με διαφανείς τιμές.",
 };
 
 export const viewport: Viewport = {
@@ -25,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${nunito.variable} h-full`}>
+    <html lang="el" className={`${notoSans.variable} h-full`}>
       <body className="min-h-full font-sans antialiased">{children}</body>
     </html>
   );

@@ -13,10 +13,10 @@ export function DatePicker({ days, selectedDate, onSelect }: DatePickerProps) {
   const todayKey = toDateKey(new Date());
 
   return (
-    <section aria-label="Choose a date">
+    <section aria-label="Επιλογή ημερομηνίας">
       <div className="mb-3 flex items-end justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Pick a date</h2>
-        <span className="text-sm text-slate-500">Next 2 weeks</span>
+        <h2 className="text-lg font-semibold text-slate-900">Επιλέξτε ημερομηνία</h2>
+        <span className="text-sm text-slate-500">Επόμενες 2 εβδομάδες</span>
       </div>
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
@@ -37,7 +37,7 @@ export function DatePicker({ days, selectedDate, onSelect }: DatePickerProps) {
               }`}
             >
               <span className={`text-xs font-medium ${isSelected ? "text-teal-100" : "text-slate-500"}`}>
-                {isToday ? "Today" : formatShortDate(day)}
+                {isToday ? "Σήμερα" : formatShortDate(day)}
               </span>
               <span className="mt-1 text-xl font-bold leading-none">{formatDayNumber(day)}</span>
             </button>

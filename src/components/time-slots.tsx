@@ -12,17 +12,17 @@ export function TimeSlots({ slots, selectedSlotId, onSelect }: TimeSlotsProps) {
   const availableCount = slots.filter((s) => s.available).length;
 
   return (
-    <section aria-label="Choose a time">
+    <section aria-label="Επιλογή ώρας">
       <div className="mb-3 flex items-end justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Available times</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Διαθέσιμες ώρες</h2>
         <span className="text-sm text-slate-500">
-          {availableCount === 0 ? "Fully booked" : `${availableCount} open`}
+          {availableCount === 0 ? "Πλήρως κλεισμένο" : `${availableCount} διαθέσιμες`}
         </span>
       </div>
 
       {availableCount === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
-          No slots left on this day. Try another date.
+          Δεν υπάρχουν διαθέσιμες ώρες αυτή την ημέρα. Δοκιμάστε άλλη ημερομηνία.
         </div>
       ) : (
         <div className="flex flex-wrap gap-2">

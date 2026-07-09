@@ -53,14 +53,15 @@ export function BookingApp() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-teal-600">
-                Home cleaning
+                Καθαριότητα σπιτιού
               </p>
-              <h1 className="text-xl font-bold text-slate-900">Sparkle Clean</h1>
+              <h1 className="text-xl font-bold text-slate-900">S.cleaning</h1>
             </div>
           </div>
 
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Book a clean in minutes. Pick a date, choose a time, and browse services with upfront pricing.
+            Κλείστε καθαρισμό σε λίγα λεπτά. Επιλέξτε ημερομηνία, ώρα και υπηρεσία με διαφανείς
+            τιμές.
           </p>
         </div>
       </header>
@@ -82,19 +83,44 @@ export function BookingApp() {
         />
 
         <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-          <h2 className="font-semibold text-slate-900">What&apos;s included</h2>
+          <h2 className="font-semibold text-slate-900">Τι περιλαμβάνεται</h2>
           <ul className="mt-3 space-y-2 text-sm text-slate-600">
             <li className="flex gap-2">
               <span className="text-teal-500">✓</span>
-              All cleaning supplies included
+              Όλα τα καθαριστικά συμπεριλαμβάνονται
             </li>
             <li className="flex gap-2">
               <span className="text-teal-500">✓</span>
-              Transparent pricing — no hidden fees
+              Διαφανείς τιμές — χωρίς κρυφές χρεώσεις
             </li>
             <li className="flex gap-2">
               <span className="text-teal-500">✓</span>
-              Free reschedule up to 16 hours before
+              Δωρεάν αλλαγή έως 16 ώρες πριν
+            </li>
+          </ul>
+        </section>
+
+        <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+          <h2 className="font-semibold text-slate-900">Επικοινωνία</h2>
+          <ul className="mt-3 space-y-3 text-sm text-slate-600">
+            <li className="flex gap-2">
+              <span className="text-teal-500">📍</span>
+              <span>Νέα Πλαγιά, Χαλκιδική</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-teal-500">📞</span>
+              <a href="tel:+306970122412" className="text-teal-600 hover:underline">
+                697 012 2412
+              </a>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-teal-500">✉️</span>
+              <a
+                href="mailto:s.cleaning2025@yahoo.com"
+                className="text-teal-600 hover:underline"
+              >
+                s.cleaning2025@yahoo.com
+              </a>
             </li>
           </ul>
         </section>
