@@ -7,12 +7,35 @@ type BottomBarProps = {
   dateLabel: string;
   timeLabel: string | null;
   canContinue: boolean;
+  isSubmitting: boolean;
+  statusMessage: string | null;
+  onContinue: () => void;
 };
 
-export function BottomBar({ service, dateLabel, timeLabel, canContinue }: BottomBarProps) {
+export function BottomBar({
+  service,
+  dateLabel,
+  timeLabel,
+  canContinue,
+  isSubmitting,
+  statusMessage,
+  onContinue,
+}: BottomBarProps) {
+  const isDisabled = !canContinue || isSubmitting;
+
   return (
     <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200/80 bg-white/95 backdrop-blur-md">
       <div className="mx-auto max-w-md px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+        {statusMessage ? (
+          <p
+            className={`mb-3 text-center text-sm ${
+              statusMessage.includes("επιτυχ") ? "text-teal-600" : "text-coral-700"
+            }`}
+          >
+            {statusMessage}
+          </p>
+        ) : null}
+
         <div className="mb-3 flex items-center justify-between gap-3 text-sm">
           <div className="min-w-0">
             <p className="truncate font-medium text-slate-900">
@@ -30,14 +53,15 @@ export function BottomBar({ service, dateLabel, timeLabel, canContinue }: Bottom
 
         <button
           type="button"
-          disabled={!canContinue}
+          disabled={isDisabled}
+          onClick={onContinue}
           className={`w-full rounded-2xl py-4 text-base font-semibold transition-all active:scale-[0.99] ${
-            canContinue
+            !isDisabled
               ? "bg-teal-500 text-white shadow-lg shadow-teal-500/30 hover:bg-teal-600"
               : "cursor-not-allowed bg-slate-200 text-slate-500"
           }`}
         >
-          Συνέχεια
+          {isSubmitting ? "Αποθήκευση..." : "Κράτηση"}
         </button>
       </div>
     </div>

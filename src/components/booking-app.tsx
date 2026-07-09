@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { createBooking, getBookedTimeSlots } from "@/app/actions/booking";
 import {
+  applyBookedSlots,
   formatLongDate,
   getAvailabilityForDate,
   getUpcomingDays,
   SERVICES,
+  toDateKey,
 } from "@/lib/data";
 import { BottomBar } from "./bottom-bar";
 import { DatePicker } from "./date-picker";
@@ -17,11 +20,33 @@ export function BookingApp() {
   const [selectedDate, setSelectedDate] = useState(days[0]);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [bookedSlotIds, setBookedSlotIds] = useState<string[]>([]);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [, startTransition] = useTransition();
 
-  const availability = useMemo(
-    () => getAvailabilityForDate(selectedDate),
-    [selectedDate],
-  );
+  const selectedDateKey = toDateKey(selectedDate);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    startTransition(async () => {
+      const slots = await getBookedTimeSlots(selectedDateKey);
+
+      if (!cancelled) {
+        setBookedSlotIds(slots);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDateKey]);
+
+  const availability = useMemo(() => {
+    const base = getAvailabilityForDate(selectedDate);
+    return applyBookedSlots(base, bookedSlotIds);
+  }, [selectedDate, bookedSlotIds]);
 
   const selectedService = SERVICES.find((s) => s.id === selectedServiceId) ?? null;
   const selectedSlot = availability.slots.find((s) => s.id === selectedSlotId) ?? null;
@@ -41,6 +66,42 @@ export function BookingApp() {
     setSelectedDate(date);
     setSelectedSlotId(null);
     setSelectedServiceId(null);
+    setStatusMessage(null);
+  }
+
+  async function handleContinue() {
+    if (!selectedService || !effectiveSlot) {
+      return;
+    }
+
+    setStatusMessage(null);
+    setIsSubmitting(true);
+
+    try {
+      const result = await createBooking({
+        serviceId: selectedService.id,
+        serviceName: selectedService.name,
+        price: selectedService.price,
+        date: selectedDateKey,
+        timeSlot: effectiveSlot.id,
+      });
+
+      if (result.ok) {
+        setBookedSlotIds((current) =>
+          current.includes(effectiveSlot.id) ? current : [...current, effectiveSlot.id],
+        );
+        setSelectedSlotId(null);
+        setSelectedServiceId(null);
+        setStatusMessage("Η κράτησή σας αποθηκεύτηκε με επιτυχία!");
+        return;
+      }
+
+      setStatusMessage(result.error);
+      const slots = await getBookedTimeSlots(selectedDateKey);
+      setBookedSlotIds(slots);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -131,6 +192,9 @@ export function BookingApp() {
         dateLabel={formatLongDate(selectedDate)}
         timeLabel={effectiveSlot?.label ?? null}
         canContinue={canContinue}
+        isSubmitting={isSubmitting}
+        statusMessage={statusMessage}
+        onContinue={handleContinue}
       />
     </div>
   );

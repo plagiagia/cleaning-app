@@ -136,3 +136,18 @@ export function getUpcomingDays(count = 14): Date[] {
 
   return days;
 }
+
+export function applyBookedSlots(
+  availability: DayAvailability,
+  bookedSlotIds: string[],
+): DayAvailability {
+  const booked = new Set(bookedSlotIds);
+
+  return {
+    ...availability,
+    slots: availability.slots.map((slot) => ({
+      ...slot,
+      available: slot.available && !booked.has(slot.id),
+    })),
+  };
+}
