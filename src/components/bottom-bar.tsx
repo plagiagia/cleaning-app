@@ -5,7 +5,6 @@ import type { Service } from "@/lib/types";
 type BottomBarProps = {
   service: Service | null;
   dateLabel: string;
-  timeLabel: string | null;
   canContinue: boolean;
   isSubmitting: boolean;
   statusMessage: string | null;
@@ -15,7 +14,6 @@ type BottomBarProps = {
 export function BottomBar({
   service,
   dateLabel,
-  timeLabel,
   canContinue,
   isSubmitting,
   statusMessage,
@@ -40,10 +38,7 @@ export function BottomBar({
           <p className="truncate font-medium text-slate-900">
             {service ? service.name : "Επιλέξτε υπηρεσία"}
           </p>
-          <p className="truncate text-slate-500">
-            {dateLabel}
-            {timeLabel ? ` · ${timeLabel}` : ""}
-          </p>
+          <p className="truncate text-slate-500">{dateLabel}</p>
         </div>
 
         <button

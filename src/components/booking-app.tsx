@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, useTransition } from "react";
-import { createBooking, getBookedTimeSlots } from "@/app/actions/booking";
+import { useMemo, useState } from "react";
+import { createBooking } from "@/app/actions/booking";
 import {
-  applyBookedSlots,
   formatLongDate,
   getAvailabilityForDate,
   getUpcomingWorkingDays,
@@ -14,7 +13,6 @@ import type { Service } from "@/lib/types";
 import { BottomBar } from "./bottom-bar";
 import { DatePicker } from "./date-picker";
 import { ServiceCatalogue } from "./service-catalogue";
-import { TimeSlots } from "./time-slots";
 
 type BookingAppProps = {
   services: Service[];
@@ -24,59 +22,31 @@ export function BookingApp({ services }: BookingAppProps) {
   const days = useMemo(() => getUpcomingWorkingDays(14), []);
   const serviceIds = useMemo(() => services.map((service) => service.id), [services]);
   const [selectedDate, setSelectedDate] = useState(days[0]);
-  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-  const [bookedSlotIds, setBookedSlotIds] = useState<string[]>([]);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [, startTransition] = useTransition();
 
   const selectedDateKey = toDateKey(selectedDate);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    startTransition(async () => {
-      const slots = await getBookedTimeSlots(selectedDateKey);
-
-      if (!cancelled) {
-        setBookedSlotIds(slots);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedDateKey]);
-
-  const availability = useMemo(() => {
-    const base = getAvailabilityForDate(selectedDate, serviceIds);
-    return applyBookedSlots(base, bookedSlotIds);
-  }, [selectedDate, serviceIds, bookedSlotIds]);
+  const availability = useMemo(
+    () => getAvailabilityForDate(selectedDate, serviceIds),
+    [selectedDate, serviceIds],
+  );
 
   const selectedService = services.find((service) => service.id === selectedServiceId) ?? null;
-  const selectedSlot = availability.slots.find((slot) => slot.id === selectedSlotId) ?? null;
-  const firstAvailableSlot = availability.slots.find((slot) => slot.available);
-
-  const effectiveSlotId =
-    selectedSlot?.available ? selectedSlotId : firstAvailableSlot?.id ?? null;
-  const effectiveSlot = availability.slots.find((slot) => slot.id === effectiveSlotId) ?? null;
 
   const canContinue = Boolean(
-    selectedService &&
-      availability.serviceIds.includes(selectedService.id) &&
-      effectiveSlot?.available,
+    selectedService && availability.serviceIds.includes(selectedService.id),
   );
 
   function handleDateSelect(date: Date) {
     setSelectedDate(date);
-    setSelectedSlotId(null);
     setSelectedServiceId(null);
     setStatusMessage(null);
   }
 
   async function handleContinue() {
-    if (!selectedService || !effectiveSlot) {
+    if (!selectedService) {
       return;
     }
 
@@ -87,22 +57,15 @@ export function BookingApp({ services }: BookingAppProps) {
       const result = await createBooking({
         serviceId: selectedService.id,
         date: selectedDateKey,
-        timeSlot: effectiveSlot.id,
       });
 
       if (result.ok) {
-        setBookedSlotIds((current) =>
-          current.includes(effectiveSlot.id) ? current : [...current, effectiveSlot.id],
-        );
-        setSelectedSlotId(null);
         setSelectedServiceId(null);
-        setStatusMessage("Η κράτησή σας αποθηκεύτηκε με επιτυχία!");
+        setStatusMessage("Η κράτησή σας αποθηκεύτηκε με επιτυχία! Θα επικοινωνήσουμε μαζί σας.");
         return;
       }
 
       setStatusMessage(result.error);
-      const slots = await getBookedTimeSlots(selectedDateKey);
-      setBookedSlotIds(slots);
     } finally {
       setIsSubmitting(false);
     }
@@ -124,20 +87,14 @@ export function BookingApp({ services }: BookingAppProps) {
           </div>
 
           <p className="mt-3 text-center text-sm leading-relaxed text-slate-600">
-            Κλείστε ραντεβού σε λίγα λεπτά. Επιλέξτε ημερομηνία, ώρα και υπηρεσία — η τιμή
-            καθορίζεται κατόπιν συνεννόησης.
+            Κλείστε ραντεβού σε λίγα λεπτά. Επιλέξτε ημερομηνία και υπηρεσία — θα
+            επικοινωνήσουμε μαζί σας για τις λεπτομέρειες.
           </p>
         </div>
       </header>
 
       <main className="mx-auto max-w-md space-y-8 px-4 pb-36 pt-6">
         <DatePicker days={days} selectedDate={selectedDate} onSelect={handleDateSelect} />
-
-        <TimeSlots
-          slots={availability.slots}
-          selectedSlotId={effectiveSlotId}
-          onSelect={setSelectedSlotId}
-        />
 
         {services.length > 0 ? (
           <ServiceCatalogue
@@ -183,7 +140,6 @@ export function BookingApp({ services }: BookingAppProps) {
       <BottomBar
         service={selectedService}
         dateLabel={formatLongDate(selectedDate)}
-        timeLabel={effectiveSlot?.label ?? null}
         canContinue={canContinue}
         isSubmitting={isSubmitting}
         statusMessage={statusMessage}

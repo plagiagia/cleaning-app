@@ -6,14 +6,7 @@ export type Service = {
   emoji: string | null;
 };
 
-export type TimeSlot = {
-  id: string;
-  label: string;
-  available: boolean;
-};
-
 export type DayAvailability = {
   date: string;
-  slots: TimeSlot[];
   serviceIds: string[];
 };
