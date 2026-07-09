@@ -155,24 +155,6 @@ export function BookingApp({ services }: BookingAppProps) {
         )}
 
         <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-          <h2 className="font-semibold text-slate-900">Τι περιλαμβάνεται</h2>
-          <ul className="mt-3 space-y-2 text-sm text-slate-600">
-            <li className="flex gap-2">
-              <span className="text-teal-500">✓</span>
-              Δωρεάν εκτίμηση πριν την προσφορά
-            </li>
-            <li className="flex gap-2">
-              <span className="text-teal-500">✓</span>
-              Επαγγελματική εξυπηρέτηση
-            </li>
-            <li className="flex gap-2">
-              <span className="text-teal-500">✓</span>
-              Δωρεάν αλλαγή έως 16 ώρες πριν
-            </li>
-          </ul>
-        </section>
-
-        <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <h2 className="font-semibold text-slate-900">Επικοινωνία</h2>
           <ul className="mt-3 space-y-3 text-sm text-slate-600">
             <li className="flex gap-2">
