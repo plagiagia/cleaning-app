@@ -19,7 +19,7 @@ export function ServiceCatalogue({
   return (
     <section aria-label="Κατάλογος υπηρεσιών">
       <div className="mb-3 flex items-end justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Υπηρεσίες &amp; τιμές</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Υπηρεσίες</h2>
         <span className="text-sm text-slate-500">{availableIds.length} διαθέσιμες</span>
       </div>
 

@@ -7,16 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Service {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  description String?
+  emoji       String?
+  sortOrder   Int       @default(0)
+  active      Boolean   @default(true)
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
 model Booking {
-  id          String   @id @default(cuid())
-  serviceId   String
-  serviceName String
-  price       Int
-  date        String
-  timeSlot    String
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id])
+  date      String
+  timeSlot  String
+  createdAt DateTime @default(now())
 
   @@unique([date, timeSlot])
   @@index([date])
+  @@index([serviceId])
   @@index([createdAt])
 }

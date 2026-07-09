@@ -5,8 +5,6 @@ import { getPrisma } from "@/lib/prisma";
 
 export type CreateBookingInput = {
   serviceId: string;
-  serviceName: string;
-  price: number;
   date: string;
   timeSlot: string;
 };
@@ -22,8 +20,6 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     const booking = await prisma.booking.create({
       data: {
         serviceId: input.serviceId,
-        serviceName: input.serviceName,
-        price: input.price,
         date: input.date,
         timeSlot: input.timeSlot,
       },

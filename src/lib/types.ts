@@ -1,11 +1,9 @@
 export type Service = {
   id: string;
+  slug: string;
   name: string;
-  description: string;
-  duration: string;
-  price: number;
-  emoji: string;
-  tag?: string;
+  description: string | null;
+  emoji: string | null;
 };
 
 export type TimeSlot = {

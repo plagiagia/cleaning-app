@@ -36,18 +36,13 @@ export function BottomBar({
           </p>
         ) : null}
 
-        <div className="mb-3 flex items-center justify-between gap-3 text-sm">
-          <div className="min-w-0">
-            <p className="truncate font-medium text-slate-900">
-              {service ? service.name : "Επιλέξτε υπηρεσία"}
-            </p>
-            <p className="truncate text-slate-500">
-              {dateLabel}
-              {timeLabel ? ` · ${timeLabel}` : ""}
-            </p>
-          </div>
-          <p className="shrink-0 text-xl font-bold text-teal-600">
-            {service ? `${service.price} €` : "—"}
+        <div className="mb-3 text-sm">
+          <p className="truncate font-medium text-slate-900">
+            {service ? service.name : "Επιλέξτε υπηρεσία"}
+          </p>
+          <p className="truncate text-slate-500">
+            {dateLabel}
+            {timeLabel ? ` · ${timeLabel}` : ""}
           </p>
         </div>
 

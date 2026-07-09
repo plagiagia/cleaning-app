@@ -7,16 +7,21 @@ import {
   formatLongDate,
   getAvailabilityForDate,
   getUpcomingDays,
-  SERVICES,
   toDateKey,
 } from "@/lib/data";
+import type { Service } from "@/lib/types";
 import { BottomBar } from "./bottom-bar";
 import { DatePicker } from "./date-picker";
 import { ServiceCatalogue } from "./service-catalogue";
 import { TimeSlots } from "./time-slots";
 
-export function BookingApp() {
+type BookingAppProps = {
+  services: Service[];
+};
+
+export function BookingApp({ services }: BookingAppProps) {
   const days = useMemo(() => getUpcomingDays(14), []);
+  const serviceIds = useMemo(() => services.map((service) => service.id), [services]);
   const [selectedDate, setSelectedDate] = useState(days[0]);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
@@ -44,17 +49,17 @@ export function BookingApp() {
   }, [selectedDateKey]);
 
   const availability = useMemo(() => {
-    const base = getAvailabilityForDate(selectedDate);
+    const base = getAvailabilityForDate(selectedDate, serviceIds);
     return applyBookedSlots(base, bookedSlotIds);
-  }, [selectedDate, bookedSlotIds]);
+  }, [selectedDate, serviceIds, bookedSlotIds]);
 
-  const selectedService = SERVICES.find((s) => s.id === selectedServiceId) ?? null;
-  const selectedSlot = availability.slots.find((s) => s.id === selectedSlotId) ?? null;
-  const firstAvailableSlot = availability.slots.find((s) => s.available);
+  const selectedService = services.find((service) => service.id === selectedServiceId) ?? null;
+  const selectedSlot = availability.slots.find((slot) => slot.id === selectedSlotId) ?? null;
+  const firstAvailableSlot = availability.slots.find((slot) => slot.available);
 
   const effectiveSlotId =
     selectedSlot?.available ? selectedSlotId : firstAvailableSlot?.id ?? null;
-  const effectiveSlot = availability.slots.find((s) => s.id === effectiveSlotId) ?? null;
+  const effectiveSlot = availability.slots.find((slot) => slot.id === effectiveSlotId) ?? null;
 
   const canContinue = Boolean(
     selectedService &&
@@ -80,8 +85,6 @@ export function BookingApp() {
     try {
       const result = await createBooking({
         serviceId: selectedService.id,
-        serviceName: selectedService.name,
-        price: selectedService.price,
         date: selectedDateKey,
         timeSlot: effectiveSlot.id,
       });
@@ -114,15 +117,15 @@ export function BookingApp() {
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-teal-600">
-                Καθαριότητα σπιτιού
+                Καθαριότητα &amp; απεντόμωση
               </p>
               <h1 className="text-xl font-bold text-slate-900">S.cleaning</h1>
             </div>
           </div>
 
           <p className="mt-3 text-sm leading-relaxed text-slate-600">
-            Κλείστε καθαρισμό σε λίγα λεπτά. Επιλέξτε ημερομηνία, ώρα και υπηρεσία με διαφανείς
-            τιμές.
+            Κλείστε ραντεβού σε λίγα λεπτά. Επιλέξτε ημερομηνία, ώρα και υπηρεσία — η τιμή
+            καθορίζεται κατόπιν συνεννόησης.
           </p>
         </div>
       </header>
@@ -136,23 +139,31 @@ export function BookingApp() {
           onSelect={setSelectedSlotId}
         />
 
-        <ServiceCatalogue
-          services={SERVICES}
-          availableIds={availability.serviceIds}
-          selectedServiceId={selectedServiceId}
-          onSelect={setSelectedServiceId}
-        />
+        {services.length > 0 ? (
+          <ServiceCatalogue
+            services={services}
+            availableIds={availability.serviceIds}
+            selectedServiceId={selectedServiceId}
+            onSelect={setSelectedServiceId}
+          />
+        ) : (
+          <section className="rounded-2xl border border-dashed border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
+            Δεν βρέθηκαν υπηρεσίες. Εκτελέστε{" "}
+            <code className="rounded bg-slate-100 px-1">npm run db:push</code> και{" "}
+            <code className="rounded bg-slate-100 px-1">npm run db:seed</code>.
+          </section>
+        )}
 
         <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <h2 className="font-semibold text-slate-900">Τι περιλαμβάνεται</h2>
           <ul className="mt-3 space-y-2 text-sm text-slate-600">
             <li className="flex gap-2">
               <span className="text-teal-500">✓</span>
-              Όλα τα καθαριστικά συμπεριλαμβάνονται
+              Δωρεάν εκτίμηση πριν την προσφορά
             </li>
             <li className="flex gap-2">
               <span className="text-teal-500">✓</span>
-              Διαφανείς τιμές — χωρίς κρυφές χρεώσεις
+              Επαγγελματική εξυπηρέτηση
             </li>
             <li className="flex gap-2">
               <span className="text-teal-500">✓</span>

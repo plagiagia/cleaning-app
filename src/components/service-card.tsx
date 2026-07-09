@@ -25,24 +25,17 @@ export function ServiceCard({ service, selected, disabled, onSelect }: ServiceCa
     >
       <div className="flex items-start gap-3">
         <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-2xl">
-          {service.emoji}
+          {service.emoji ?? "✨"}
         </span>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="font-semibold text-slate-900">{service.name}</h3>
-              {service.tag ? (
-                <span className="mt-1 inline-block rounded-full bg-coral-100 px-2 py-0.5 text-xs font-medium text-coral-700">
-                  {service.tag}
-                </span>
-              ) : null}
-            </div>
-            <p className="shrink-0 text-lg font-bold text-teal-600">{service.price} €</p>
-          </div>
+          <h3 className="font-semibold text-slate-900">{service.name}</h3>
 
-          <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
-          <p className="mt-2 text-xs font-medium text-slate-400">{service.duration}</p>
+          {service.description ? (
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
+          ) : null}
+
+          <p className="mt-2 text-xs font-medium text-teal-600">Κατόπιν συνεννόησης</p>
         </div>
       </div>
     </button>

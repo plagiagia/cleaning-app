@@ -1,58 +1,4 @@
-import type { DayAvailability, Service } from "./types";
-
-export const SERVICES: Service[] = [
-  {
-    id: "standard",
-    name: "Τυπικός καθαρισμός",
-    description: "Σκούπισμα, απορρόφηση, καθάρισμα κουζίνας και μπάνιου.",
-    duration: "2–3 ώρες",
-    price: 89,
-    emoji: "✨",
-    tag: "Δημοφιλές",
-  },
-  {
-    id: "deep",
-    name: "Βαθύς καθαρισμός",
-    description: "Λεπτομερές τρίψιμο, εσωτερικά συσκευών, δύσκολα σημεία.",
-    duration: "4–5 ώρες",
-    price: 149,
-    emoji: "🧼",
-  },
-  {
-    id: "move-out",
-    name: "Καθαρισμός μετά από μετακόμιση",
-    description: "Πλήρης καθαρισμός από πάνω μέχρι κάτω για παράδοση κλειδιών.",
-    duration: "5–6 ώρες",
-    price: 199,
-    emoji: "📦",
-  },
-  {
-    id: "kitchen",
-    name: "Εστίαση κουζίνας",
-    description: "Πάγκοι, ντουλάπια, φούρνος, ψυγείο και δάπεδο.",
-    duration: "2–3 ώρες",
-    price: 79,
-    emoji: "🍳",
-  },
-  {
-    id: "windows",
-    name: "Καθαρισμός παραθύρων",
-    description: "Εσωτερικά παράθυρα, κουφώματα και κάγκελα — ανά επίσκεψη.",
-    duration: "1–2 ώρες",
-    price: 59,
-    emoji: "🪟",
-  },
-  {
-    id: "office",
-    name: "Καθαρισμός γραφείου",
-    description: "Γραφεία, κοινόχρηστοι χώροι και τουαλέτες για μικρά γραφεία.",
-    duration: "2–4 ώρες",
-    price: 119,
-    emoji: "💼",
-  },
-];
-
-const ALL_SERVICE_IDS = SERVICES.map((s) => s.id);
+import type { DayAvailability } from "./types";
 
 const TIME_TEMPLATES = [
   { id: "08:00", label: "08:00" },
@@ -75,18 +21,7 @@ function unavailableSlotIds(date: Date): Set<string> {
   return new Set();
 }
 
-function unavailableServiceIds(date: Date): string[] {
-  const day = date.getDay();
-  const seed = date.getDate();
-
-  if (day === 0) return ALL_SERVICE_IDS.filter((id) => id !== "standard");
-  if (seed % 9 === 0) return ALL_SERVICE_IDS.filter((id) => id !== "move-out" && id !== "office");
-  if (day === 6) return ALL_SERVICE_IDS.filter((id) => id !== "office");
-
-  return ALL_SERVICE_IDS;
-}
-
-export function getAvailabilityForDate(date: Date): DayAvailability {
+export function getAvailabilityForDate(date: Date, serviceIds: string[]): DayAvailability {
   const blocked = unavailableSlotIds(date);
   const dateKey = toDateKey(date);
 
@@ -96,7 +31,7 @@ export function getAvailabilityForDate(date: Date): DayAvailability {
       ...slot,
       available: !blocked.has(slot.id),
     })),
-    serviceIds: unavailableServiceIds(date),
+    serviceIds,
   };
 }
 
