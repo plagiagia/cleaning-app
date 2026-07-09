@@ -16,7 +16,7 @@ export function DatePicker({ days, selectedDate, onSelect }: DatePickerProps) {
     <section aria-label="Επιλογή ημερομηνίας">
       <div className="mb-3 flex items-end justify-between">
         <h2 className="text-lg font-semibold text-slate-900">Επιλέξτε ημερομηνία</h2>
-        <span className="text-sm text-slate-500">Επόμενες 2 εβδομάδες</span>
+        <span className="text-sm text-slate-500">Δευ–Σάβ · 06:00–20:00</span>
       </div>
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">

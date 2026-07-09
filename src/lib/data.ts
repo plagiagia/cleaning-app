@@ -1,22 +1,27 @@
 import type { DayAvailability } from "./types";
 
-const TIME_TEMPLATES = [
-  { id: "08:00", label: "08:00" },
-  { id: "10:00", label: "10:00" },
-  { id: "12:00", label: "12:00" },
-  { id: "14:00", label: "14:00" },
-  { id: "16:00", label: "16:00" },
-  { id: "18:00", label: "18:00" },
-];
+const WORK_DAY_START_HOUR = 6;
+const WORK_DAY_END_HOUR = 20;
+
+const TIME_TEMPLATES = Array.from(
+  { length: WORK_DAY_END_HOUR - WORK_DAY_START_HOUR + 1 },
+  (_, index) => {
+    const hour = WORK_DAY_START_HOUR + index;
+    const id = `${String(hour).padStart(2, "0")}:00`;
+
+    return { id, label: id };
+  },
+);
+
+export function isWorkingDay(date: Date): boolean {
+  const day = date.getDay();
+  return day >= 1 && day <= 6;
+}
 
 function unavailableSlotIds(date: Date): Set<string> {
-  const day = date.getDay();
-  const seed = date.getDate() + date.getMonth() * 3;
-
-  if (day === 0) return new Set(["08:00", "10:00", "12:00", "14:00", "16:00", "18:00"]);
-  if (day === 6) return new Set(["18:00"]);
-  if (seed % 7 === 0) return new Set(["10:00", "14:00"]);
-  if (seed % 5 === 0) return new Set(["16:00", "18:00"]);
+  if (!isWorkingDay(date)) {
+    return new Set(TIME_TEMPLATES.map((slot) => slot.id));
+  }
 
   return new Set();
 }
@@ -31,7 +36,7 @@ export function getAvailabilityForDate(date: Date, serviceIds: string[]): DayAva
       ...slot,
       available: !blocked.has(slot.id),
     })),
-    serviceIds,
+    serviceIds: isWorkingDay(date) ? serviceIds : [],
   };
 }
 
@@ -58,15 +63,17 @@ export function formatLongDate(date: Date): string {
   });
 }
 
-export function getUpcomingDays(count = 14): Date[] {
+export function getUpcomingWorkingDays(count = 14): Date[] {
   const days: Date[] = [];
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
 
-  for (let i = 0; i < count; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    days.push(d);
+  while (days.length < count) {
+    if (isWorkingDay(cursor)) {
+      days.push(new Date(cursor));
+    }
+
+    cursor.setDate(cursor.getDate() + 1);
   }
 
   return days;

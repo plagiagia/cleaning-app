@@ -7,7 +7,7 @@ import {
   applyBookedSlots,
   formatLongDate,
   getAvailabilityForDate,
-  getUpcomingDays,
+  getUpcomingWorkingDays,
   toDateKey,
 } from "@/lib/data";
 import type { Service } from "@/lib/types";
@@ -21,7 +21,7 @@ type BookingAppProps = {
 };
 
 export function BookingApp({ services }: BookingAppProps) {
-  const days = useMemo(() => getUpcomingDays(14), []);
+  const days = useMemo(() => getUpcomingWorkingDays(14), []);
   const serviceIds = useMemo(() => services.map((service) => service.id), [services]);
   const [selectedDate, setSelectedDate] = useState(days[0]);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
