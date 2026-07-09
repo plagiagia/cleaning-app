@@ -115,6 +115,10 @@ export function BookingApp({ services }: BookingAppProps) {
           <h2 className="font-semibold text-slate-900">Επικοινωνία</h2>
           <ul className="mt-3 space-y-3 text-sm text-slate-600">
             <li className="flex gap-2">
+              <span className="text-teal-500">👤</span>
+              <span>Βασίλης Μαυρουδάκης</span>
+            </li>
+            <li className="flex gap-2">
               <span className="text-teal-500">📍</span>
               <span>Νέα Πλαγιά, Χαλκιδική</span>
             </li>
