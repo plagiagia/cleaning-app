@@ -18,10 +18,10 @@ const SERVICES = [
     sortOrder: 2,
   },
   {
-    slug: "katharismos-tzabariwn",
-    name: "Καθαρισμός Τζαμπαρίων",
-    description: "Εξειδικευμένος καθαρισμός και απολύμανση τζαμπαριών.",
-    emoji: "🛁",
+    slug: "katharismos-tzamiwn",
+    name: "Καθαρισμός Τζαμιών",
+    description: "Επαγγελματικός καθαρισμός τζαμιών, κουφωμάτων και γυάλινων επιφανειών.",
+    emoji: "🪟",
     sortOrder: 3,
   },
   {
@@ -48,6 +48,10 @@ const SERVICES = [
 ] as const;
 
 async function main() {
+  await prisma.service.deleteMany({
+    where: { slug: "katharismos-tzabariwn" },
+  });
+
   for (const service of SERVICES) {
     await prisma.service.upsert({
       where: { slug: service.slug },
