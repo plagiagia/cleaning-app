@@ -23,21 +23,13 @@ export function ServiceCard({ service, selected, disabled, onSelect }: ServiceCa
             : "border-slate-200 bg-white hover:border-teal-200 hover:shadow-sm"
       }`}
     >
-      <div className="flex items-start gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-2xl">
-          {service.emoji ?? "✨"}
-        </span>
+      <h3 className="font-semibold text-slate-900">{service.name}</h3>
 
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-slate-900">{service.name}</h3>
+      {service.description ? (
+        <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
+      ) : null}
 
-          {service.description ? (
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
-          ) : null}
-
-          <p className="mt-2 text-xs font-medium text-teal-600">Κατόπιν συνεννόησης</p>
-        </div>
-      </div>
+      <p className="mt-2 text-xs font-medium text-teal-600">Κατόπιν συνεννόησης</p>
     </button>
   );
 }
