@@ -19,16 +19,16 @@ export function toDateKey(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-export function formatShortDate(date: Date): string {
-  return date.toLocaleDateString("el-GR", { weekday: "short" });
+export function formatShortDate(date: Date, localeTag = "el-GR"): string {
+  return date.toLocaleDateString(localeTag, { weekday: "short" });
 }
 
 export function formatDayNumber(date: Date): string {
   return String(date.getDate());
 }
 
-export function formatLongDate(date: Date): string {
-  return date.toLocaleDateString("el-GR", {
+export function formatLongDate(date: Date, localeTag = "el-GR"): string {
+  return date.toLocaleDateString(localeTag, {
     weekday: "long",
     day: "numeric",
     month: "long",

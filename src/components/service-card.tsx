@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "@/lib/i18n/context";
 import type { Service } from "@/lib/types";
 
 type ServiceCardProps = {
@@ -10,6 +11,8 @@ type ServiceCardProps = {
 };
 
 export function ServiceCard({ service, selected, disabled, onSelect }: ServiceCardProps) {
+  const { t } = useTranslations();
+
   return (
     <button
       type="button"
@@ -29,7 +32,7 @@ export function ServiceCard({ service, selected, disabled, onSelect }: ServiceCa
         <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
       ) : null}
 
-      <p className="mt-2 text-xs font-medium text-teal-600">Κατόπιν συνεννόησης</p>
+      <p className="mt-2 text-xs font-medium text-teal-600">{t("uponConsultation")}</p>
     </button>
   );
 }

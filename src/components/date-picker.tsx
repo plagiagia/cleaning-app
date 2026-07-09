@@ -1,22 +1,25 @@
 "use client";
 
+import { useTranslations } from "@/lib/i18n/context";
 import { formatDayNumber, formatShortDate, toDateKey } from "@/lib/data";
 
 type DatePickerProps = {
   days: Date[];
   selectedDate: Date;
+  localeTag: string;
   onSelect: (date: Date) => void;
 };
 
-export function DatePicker({ days, selectedDate, onSelect }: DatePickerProps) {
+export function DatePicker({ days, selectedDate, localeTag, onSelect }: DatePickerProps) {
+  const { t } = useTranslations();
   const selectedKey = toDateKey(selectedDate);
   const todayKey = toDateKey(new Date());
 
   return (
-    <section aria-label="Επιλογή ημερομηνίας">
+    <section aria-label={t("pickDateAria")}>
       <div className="mb-3 flex items-end justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Επιλέξτε ημερομηνία</h2>
-        <span className="text-sm text-slate-500">Δευτέρα–Σάββατο</span>
+        <h2 className="text-lg font-semibold text-slate-900">{t("pickDate")}</h2>
+        <span className="text-sm text-slate-500">{t("workingDays")}</span>
       </div>
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-hide">
@@ -37,7 +40,7 @@ export function DatePicker({ days, selectedDate, onSelect }: DatePickerProps) {
               }`}
             >
               <span className={`text-xs font-medium ${isSelected ? "text-teal-100" : "text-slate-500"}`}>
-                {isToday ? "Σήμερα" : formatShortDate(day)}
+                {isToday ? t("today") : formatShortDate(day, localeTag)}
               </span>
               <span className="mt-1 text-xl font-bold leading-none">{formatDayNumber(day)}</span>
             </button>

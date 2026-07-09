@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "@/lib/i18n/context";
 import type { Service } from "@/lib/types";
 
 type BottomBarProps = {
@@ -7,7 +8,7 @@ type BottomBarProps = {
   dateLabel: string;
   canContinue: boolean;
   isSubmitting: boolean;
-  statusMessage: string | null;
+  statusMessage: { type: "success" | "error"; text: string } | null;
   onContinue: () => void;
 };
 
@@ -19,6 +20,7 @@ export function BottomBar({
   statusMessage,
   onContinue,
 }: BottomBarProps) {
+  const { t } = useTranslations();
   const isDisabled = !canContinue || isSubmitting;
 
   return (
@@ -27,16 +29,16 @@ export function BottomBar({
         {statusMessage ? (
           <p
             className={`mb-3 text-center text-sm ${
-              statusMessage.includes("επιτυχ") ? "text-teal-600" : "text-coral-700"
+              statusMessage.type === "success" ? "text-teal-600" : "text-coral-700"
             }`}
           >
-            {statusMessage}
+            {statusMessage.text}
           </p>
         ) : null}
 
         <div className="mb-3 text-sm">
           <p className="truncate font-medium text-slate-900">
-            {service ? service.name : "Επιλέξτε υπηρεσία"}
+            {service ? service.name : t("selectService")}
           </p>
           <p className="truncate text-slate-500">{dateLabel}</p>
         </div>
@@ -51,7 +53,7 @@ export function BottomBar({
               : "cursor-not-allowed bg-slate-200 text-slate-500"
           }`}
         >
-          {isSubmitting ? "Αποθήκευση..." : "Κράτηση"}
+          {isSubmitting ? t("saving") : t("booking")}
         </button>
       </div>
     </div>
