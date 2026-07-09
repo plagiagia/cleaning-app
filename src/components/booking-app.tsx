@@ -113,15 +113,23 @@ export function BookingApp({ services }: BookingAppProps) {
 
         <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
           <h2 className="font-semibold text-slate-900">Επικοινωνία</h2>
-          <ul className="mt-3 space-y-2 text-sm text-slate-600">
-            <li>Βασίλης Μαυρουδάκης</li>
-            <li>Νέα Πλαγιά, Χαλκιδική</li>
-            <li>
+          <ul className="mt-3 space-y-3 text-sm text-slate-600">
+            <li className="flex gap-2">
+              <span className="text-teal-500">👤</span>
+              <span>Βασίλης Μαυρουδάκης</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-teal-500">📍</span>
+              <span>Νέα Πλαγιά, Χαλκιδική</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-teal-500">📞</span>
               <a href="tel:+306970122412" className="text-teal-600 hover:underline">
                 697 012 2412
               </a>
             </li>
-            <li>
+            <li className="flex gap-2">
+              <span className="text-teal-500">✉️</span>
               <a
                 href="mailto:s.cleaning2025@yahoo.com"
                 className="text-teal-600 hover:underline"
