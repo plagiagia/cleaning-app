@@ -13,6 +13,7 @@ import {
 } from "@/lib/data";
 import type { Service } from "@/lib/types";
 import { BottomBar } from "./bottom-bar";
+import { BookingModal, type BookingFormData } from "./booking-modal";
 import { DatePicker } from "./date-picker";
 import { LanguageSwitcher } from "./language-switcher";
 import { ServiceCatalogue } from "./service-catalogue";
@@ -41,6 +42,7 @@ export function BookingApp({ services }: BookingAppProps) {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<StatusMessage>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedDateKey = toDateKey(selectedDate);
 
@@ -62,21 +64,39 @@ export function BookingApp({ services }: BookingAppProps) {
     setStatusMessage(null);
   }
 
-  async function handleContinue() {
+  function handleContinue() {
+    if (!selectedService) {
+      return;
+    }
+    setStatusMessage(null);
+    setIsModalOpen(true);
+  }
+
+  async function handleBookingSubmit(formData: BookingFormData) {
     if (!selectedService) {
       return;
     }
 
-    setStatusMessage(null);
     setIsSubmitting(true);
 
     try {
       const result = await createBooking({
         serviceId: selectedService.id,
         date: selectedDateKey,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        email: formData.email,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        photos: formData.photos,
+        locale,
+        serviceName: selectedService.name,
+        dateLabel: formatLongDate(selectedDate, localeTag),
       });
 
       if (result.ok) {
+        setIsModalOpen(false);
         setSelectedServiceId(null);
         setStatusMessage({ type: "success", text: t("bookingSuccess") });
         return;
@@ -163,11 +183,26 @@ export function BookingApp({ services }: BookingAppProps) {
       <BottomBar
         service={selectedService}
         dateLabel={formatLongDate(selectedDate, localeTag)}
-        canContinue={canContinue}
+        canContinue={canContinue && !isModalOpen}
         isSubmitting={isSubmitting}
         statusMessage={statusMessage}
         onContinue={handleContinue}
       />
+
+      {selectedService ? (
+        <BookingModal
+          isOpen={isModalOpen}
+          service={selectedService}
+          dateLabel={formatLongDate(selectedDate, localeTag)}
+          isSubmitting={isSubmitting}
+          onClose={() => {
+            if (!isSubmitting) {
+              setIsModalOpen(false);
+            }
+          }}
+          onSubmit={handleBookingSubmit}
+        />
+      ) : null}
     </div>
   );
 }

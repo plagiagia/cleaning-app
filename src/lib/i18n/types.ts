@@ -19,7 +19,26 @@ export type TranslationKey =
   | "saving"
   | "bookingSuccess"
   | "bookingError"
-  | "language";
+  | "language"
+  | "formTitle"
+  | "formFirstName"
+  | "formLastName"
+  | "formPhone"
+  | "formEmail"
+  | "formLocation"
+  | "formLocationHint"
+  | "formPhotos"
+  | "formPhotosHint"
+  | "formAddPhotos"
+  | "formRemovePhoto"
+  | "formSubmit"
+  | "formCancel"
+  | "formRequired"
+  | "formInvalidEmail"
+  | "formLocationRequired"
+  | "formPhotoLimit"
+  | "formPhotoSize"
+  | "formPhotoType";
 
 export type ServiceSlug =
   | "myoktonies"

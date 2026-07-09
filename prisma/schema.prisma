@@ -25,9 +25,17 @@ model Booking {
   serviceId String
   service   Service  @relation(fields: [serviceId], references: [id])
   date      String
+  firstName String
+  lastName  String
+  phone     String
+  email     String
+  latitude  Float
+  longitude Float
+  photos    Json?
   createdAt DateTime @default(now())
 
   @@index([date])
   @@index([serviceId])
   @@index([createdAt])
+  @@index([email])
 }
