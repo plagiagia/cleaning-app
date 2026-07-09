@@ -40,6 +40,8 @@ const el: Translations = {
   formPhotoLimit: "Μέγιστο 5 φωτογραφίες",
   formPhotoSize: "Η φωτογραφία είναι πολύ μεγάλη (μέγ. 4 MB)",
   formPhotoType: "Μόνο εικόνες επιτρέπονται",
+  bookingEmailFailed:
+    "Η κράτηση αποθηκεύτηκε, αλλά δεν στάλθηκε email. Θα επικοινωνήσουμε μαζί σας.",
   services: {
     myoktonies: {
       name: "Μυοκτονίες",
@@ -108,6 +110,8 @@ const en: Translations = {
   formPhotoLimit: "Maximum 5 photos",
   formPhotoSize: "Photo is too large (max 4 MB)",
   formPhotoType: "Only images are allowed",
+  bookingEmailFailed:
+    "Booking saved, but the confirmation email could not be sent. We will contact you.",
   services: {
     myoktonies: {
       name: "Rodent control",
@@ -176,6 +180,8 @@ const bg: Translations = {
   formPhotoLimit: "Максимум 5 снимки",
   formPhotoSize: "Снимката е твърде голяма (макс. 4 MB)",
   formPhotoType: "Позволени са само изображения",
+  bookingEmailFailed:
+    "Резервацията е запазена, но имейлът не беше изпратен. Ще се свържем с вас.",
   services: {
     myoktonies: {
       name: "Дератизация",
@@ -244,6 +250,8 @@ const mk: Translations = {
   formPhotoLimit: "Максимум 5 фотографии",
   formPhotoSize: "Фотографијата е преголема (макс. 4 MB)",
   formPhotoType: "Дозволени се само слики",
+  bookingEmailFailed:
+    "Резервацијата е зачувана, но email-от не беше испратен. Ќе ве контактираме.",
   services: {
     myoktonies: {
       name: "Дератизација",
@@ -312,6 +320,8 @@ const sr: Translations = {
   formPhotoLimit: "Maksimalno 5 fotografija",
   formPhotoSize: "Fotografija je prevelika (maks. 4 MB)",
   formPhotoType: "Dozvoljene su samo slike",
+  bookingEmailFailed:
+    "Rezervacija je sačuvana, ali email nije poslat. Kontaktiraćemo vas.",
   services: {
     myoktonies: {
       name: "Deratizacija",

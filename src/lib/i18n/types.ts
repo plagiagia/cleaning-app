@@ -38,7 +38,8 @@ export type TranslationKey =
   | "formLocationRequired"
   | "formPhotoLimit"
   | "formPhotoSize"
-  | "formPhotoType";
+  | "formPhotoType"
+  | "bookingEmailFailed";
 
 export type ServiceSlug =
   | "myoktonies"

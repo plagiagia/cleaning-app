@@ -98,7 +98,10 @@ export function BookingApp({ services }: BookingAppProps) {
       if (result.ok) {
         setIsModalOpen(false);
         setSelectedServiceId(null);
-        setStatusMessage({ type: "success", text: t("bookingSuccess") });
+        setStatusMessage({
+          type: result.emailSent ? "success" : "error",
+          text: result.emailSent ? t("bookingSuccess") : t("bookingEmailFailed"),
+        });
         return;
       }
 

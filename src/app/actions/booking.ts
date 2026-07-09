@@ -21,7 +21,7 @@ export type CreateBookingInput = {
 };
 
 export type CreateBookingResult =
-  | { ok: true; id: string }
+  | { ok: true; id: string; emailSent: boolean; emailError?: string }
   | { ok: false; error: string };
 
 const MAX_PHOTOS = 5;
@@ -122,9 +122,15 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
 
     if (!emailResult.ok) {
       console.error("Booking saved but email failed:", emailResult.error);
+      return {
+        ok: true,
+        id: booking.id,
+        emailSent: false,
+        emailError: emailResult.error,
+      };
     }
 
-    return { ok: true, id: booking.id };
+    return { ok: true, id: booking.id, emailSent: true };
   } catch (error) {
     console.error("Failed to create booking:", error);
     return { ok: false, error: "Αποτυχία αποθήκευσης κράτησης. Δοκιμάστε ξανά." };
