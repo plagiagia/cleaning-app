@@ -1,10 +1,8 @@
 "use server";
 
 import { getPrisma } from "@/lib/prisma";
-import { sendBookingEmails, type BookingEmailPhoto } from "@/lib/email";
+import { sendBookingEmails } from "@/lib/email";
 import { translateService } from "@/lib/i18n/translate-service";
-
-export type BookingPhotoInput = BookingEmailPhoto;
 
 export type CreateBookingInput = {
   serviceId: string;
@@ -17,7 +15,6 @@ export type CreateBookingInput = {
   comments?: string;
   latitude: number;
   longitude: number;
-  photos?: BookingPhotoInput[];
   locale?: string;
   dateLabel?: string;
 };
@@ -25,9 +22,6 @@ export type CreateBookingInput = {
 export type CreateBookingResult =
   | { ok: true; id: string; emailSent: boolean }
   | { ok: false; error: string };
-
-const MAX_PHOTOS = 5;
-const MAX_PHOTO_SIZE_BYTES = 4 * 1024 * 1024;
 
 function validateInput(input: CreateBookingInput): string | null {
   if (!input.serviceId?.trim()) {
@@ -57,21 +51,6 @@ function validateInput(input: CreateBookingInput): string | null {
     return "Location is required.";
   }
 
-  const photos = input.photos ?? [];
-  if (photos.length > MAX_PHOTOS) {
-    return "Too many photos.";
-  }
-
-  for (const photo of photos) {
-    if (!photo.type.startsWith("image/")) {
-      return "Invalid photo type.";
-    }
-    const sizeBytes = Buffer.byteLength(photo.data, "base64");
-    if (sizeBytes > MAX_PHOTO_SIZE_BYTES) {
-      return "Photo too large.";
-    }
-  }
-
   return null;
 }
 
@@ -83,7 +62,6 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
 
   try {
     const prisma = getPrisma();
-    const photos = input.photos ?? [];
 
     const service = await prisma.service.findUnique({
       where: { id: input.serviceId },
@@ -114,7 +92,6 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
         comments: input.comments?.trim() || null,
         latitude: input.latitude,
         longitude: input.longitude,
-        photos: photos.length > 0 ? photos : undefined,
       },
     });
 
@@ -130,7 +107,6 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       comments: input.comments?.trim() || null,
       latitude: input.latitude,
       longitude: input.longitude,
-      photos,
       locale: input.locale ?? "el",
     });
 

@@ -7,12 +7,6 @@ const FROM_EMAIL =
   process.env.SMTP_FROM ??
   `S.cleaning <${COMPANY_EMAIL}>`;
 
-export type BookingEmailPhoto = {
-  name: string;
-  type: string;
-  data: string;
-};
-
 export type BookingEmailDetails = {
   bookingId: string;
   serviceName: string;
@@ -25,7 +19,6 @@ export type BookingEmailDetails = {
   comments: string | null;
   latitude: number;
   longitude: number;
-  photos: BookingEmailPhoto[];
   locale: string;
 };
 
@@ -45,14 +38,6 @@ function formatMapLink(latitude: number, longitude: number) {
   return `https://www.google.com/maps?q=${latitude},${longitude}`;
 }
 
-function buildPhotoAttachments(photos: BookingEmailPhoto[]) {
-  return photos.map((photo) => ({
-    filename: photo.name,
-    content: Buffer.from(photo.data, "base64"),
-    contentType: photo.type,
-  }));
-}
-
 function buildBookingMessage(details: BookingEmailDetails) {
   const mapLink = formatMapLink(details.latitude, details.longitude);
 
@@ -67,7 +52,6 @@ function buildBookingMessage(details: BookingEmailDetails) {
     `Location: ${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
     `Map: ${mapLink}`,
     `Comments: ${details.comments?.trim() || "—"}`,
-    `Photos: ${details.photos.length}`,
   ].join("\n");
 }
 
@@ -84,7 +68,6 @@ function buildBookingSummaryHtml(details: BookingEmailDetails) {
     <p><strong>Address:</strong> ${details.address}</p>
     <p><strong>Location:</strong> <a href="${mapLink}">${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}</a></p>
     <p><strong>Comments:</strong> ${details.comments?.trim() || "—"}</p>
-    <p><strong>Photos attached:</strong> ${details.photos.length}</p>
   `;
 }
 
@@ -206,7 +189,6 @@ async function sendViaFormspree(
         comments: details.comments?.trim() || "",
         location: `${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
         map_link: mapLink,
-        photos_count: details.photos.length,
         message: buildBookingMessage(details),
       }),
     });
@@ -275,7 +257,6 @@ async function sendViaSmtp(details: BookingEmailDetails): Promise<SendBookingEma
     return { ok: false, error: "SMTP is not configured." };
   }
 
-  const attachments = buildPhotoAttachments(details.photos);
   const confirmation = buildConfirmationBody(details);
 
   try {
@@ -285,7 +266,6 @@ async function sendViaSmtp(details: BookingEmailDetails): Promise<SendBookingEma
       replyTo: details.email,
       subject: `New booking: ${details.serviceName} — ${details.date}`,
       html: buildBookingSummaryHtml(details),
-      attachments,
     });
 
     await transport.sendMail({
@@ -308,7 +288,6 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
     return { ok: false, error: "Resend is not configured." };
   }
 
-  const attachments = buildPhotoAttachments(details.photos);
   const confirmation = buildConfirmationBody(details);
 
   try {
@@ -318,7 +297,6 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
       replyTo: details.email,
       subject: `New booking: ${details.serviceName} — ${details.date}`,
       html: buildBookingSummaryHtml(details),
-      attachments: attachments.length > 0 ? attachments : undefined,
     });
 
     if (companyResult.error) {

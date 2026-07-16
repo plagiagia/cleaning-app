@@ -17,9 +17,6 @@ const LocationMap = dynamic(
   },
 );
 
-const MAX_PHOTOS = 5;
-const MAX_PHOTO_SIZE_BYTES = 4 * 1024 * 1024;
-
 export type BookingFormData = {
   firstName: string;
   lastName: string;
@@ -29,7 +26,6 @@ export type BookingFormData = {
   comments: string;
   latitude: number;
   longitude: number;
-  photos: { name: string; type: string; data: string }[];
 };
 
 type BookingModalProps = {
@@ -42,32 +38,8 @@ type BookingModalProps = {
 };
 
 type FormErrors = Partial<
-  Record<
-    "firstName" | "lastName" | "phone" | "email" | "address" | "location" | "photos",
-    string
-  >
+  Record<"firstName" | "lastName" | "phone" | "email" | "address" | "location", string>
 >;
-
-type PhotoPreview = {
-  id: string;
-  name: string;
-  type: string;
-  data: string;
-  previewUrl: string;
-};
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(",")[1] ?? "";
-      resolve(base64);
-    };
-    reader.onerror = () => reject(new Error("Failed to read file"));
-    reader.readAsDataURL(file);
-  });
-}
 
 export function BookingModal({
   isOpen,
@@ -79,7 +51,6 @@ export function BookingModal({
 }: BookingModalProps) {
   const { t } = useTranslations();
   const titleId = useId();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   const [firstName, setFirstName] = useState("");
@@ -89,7 +60,6 @@ export function BookingModal({
   const [address, setAddress] = useState("");
   const [comments, setComments] = useState("");
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
@@ -121,10 +91,6 @@ export function BookingModal({
       setAddress("");
       setComments("");
       setPosition(null);
-      setPhotos((current) => {
-        current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
-        return [];
-      });
       setErrors({});
     }
   }, [isOpen]);
@@ -160,59 +126,6 @@ export function BookingModal({
     return nextErrors;
   }
 
-  async function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []);
-    event.target.value = "";
-
-    if (files.length === 0) {
-      return;
-    }
-
-    const remainingSlots = MAX_PHOTOS - photos.length;
-    if (remainingSlots <= 0) {
-      setErrors((current) => ({ ...current, photos: t("formPhotoLimit") }));
-      return;
-    }
-
-    const filesToAdd = files.slice(0, remainingSlots);
-    const nextPhotos: PhotoPreview[] = [];
-
-    for (const file of filesToAdd) {
-      if (!file.type.startsWith("image/")) {
-        setErrors((current) => ({ ...current, photos: t("formPhotoType") }));
-        continue;
-      }
-      if (file.size > MAX_PHOTO_SIZE_BYTES) {
-        setErrors((current) => ({ ...current, photos: t("formPhotoSize") }));
-        continue;
-      }
-
-      const data = await fileToBase64(file);
-      nextPhotos.push({
-        id: crypto.randomUUID(),
-        name: file.name,
-        type: file.type,
-        data,
-        previewUrl: URL.createObjectURL(file),
-      });
-    }
-
-    if (nextPhotos.length > 0) {
-      setPhotos((current) => [...current, ...nextPhotos]);
-      setErrors((current) => ({ ...current, photos: undefined }));
-    }
-  }
-
-  function removePhoto(id: string) {
-    setPhotos((current) => {
-      const photo = current.find((item) => item.id === id);
-      if (photo) {
-        URL.revokeObjectURL(photo.previewUrl);
-      }
-      return current.filter((item) => item.id !== id);
-    });
-  }
-
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
@@ -232,7 +145,6 @@ export function BookingModal({
       comments: comments.trim(),
       latitude: position.lat,
       longitude: position.lng,
-      photos: photos.map(({ name, type, data }) => ({ name, type, data })),
     });
   }
 
@@ -397,57 +309,6 @@ export function BookingModal({
                 onChange={(event) => setComments(event.target.value)}
                 className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-teal-500 focus:ring-2"
               />
-            </div>
-
-            <div>
-              <p className="mb-1 text-sm font-medium text-slate-700">{t("formPhotos")}</p>
-              <p className="mb-2 text-xs text-slate-500">{t("formPhotosHint")}</p>
-
-              {photos.length > 0 ? (
-                <ul className="mb-3 grid grid-cols-3 gap-2">
-                  {photos.map((photo) => (
-                    <li key={photo.id} className="relative aspect-square overflow-hidden rounded-xl">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={photo.previewUrl}
-                        alt={photo.name}
-                        className="h-full w-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(photo.id)}
-                        className="absolute right-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-xs text-white"
-                        aria-label={t("formRemovePhoto")}
-                      >
-                        ✕
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-
-              {photos.length < MAX_PHOTOS ? (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-xl border border-dashed border-slate-300 px-3 py-3 text-sm text-slate-600 hover:border-teal-400 hover:text-teal-600"
-                >
-                  {t("formAddPhotos")}
-                </button>
-              ) : null}
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                className="hidden"
-                onChange={handlePhotoChange}
-              />
-
-              {errors.photos ? (
-                <p className="mt-1 text-xs text-coral-700">{errors.photos}</p>
-              ) : null}
             </div>
           </div>
 

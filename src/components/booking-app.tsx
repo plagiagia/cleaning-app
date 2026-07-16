@@ -91,7 +91,6 @@ export function BookingApp({ services }: BookingAppProps) {
         comments: formData.comments,
         latitude: formData.latitude,
         longitude: formData.longitude,
-        photos: formData.photos,
         locale,
         dateLabel: formatLongDate(selectedDate, localeTag),
       });

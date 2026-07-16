@@ -31,18 +31,11 @@ export type TranslationKey =
   | "formAddressRequired"
   | "formComments"
   | "formCommentsHint"
-  | "formPhotos"
-  | "formPhotosHint"
-  | "formAddPhotos"
-  | "formRemovePhoto"
   | "formSubmit"
   | "formCancel"
   | "formRequired"
   | "formInvalidEmail"
   | "formLocationRequired"
-  | "formPhotoLimit"
-  | "formPhotoSize"
-  | "formPhotoType"
   | "bookingEmailFailed";
 
 export type ServiceSlug =
