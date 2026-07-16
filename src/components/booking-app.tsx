@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { createBooking } from "@/app/actions/booking";
+import { submitBookingToFormspree } from "@/lib/formspree-client";
 import { useTranslations } from "@/lib/i18n/context";
 import { translateServices } from "@/lib/i18n/translate-service";
 import {
@@ -95,17 +96,30 @@ export function BookingApp({ services }: BookingAppProps) {
         dateLabel: formatLongDate(selectedDate, localeTag),
       });
 
-      if (result.ok) {
-        setIsModalOpen(false);
-        setSelectedServiceId(null);
-        setStatusMessage({
-          type: result.emailSent ? "success" : "error",
-          text: result.emailSent ? t("bookingSuccess") : t("bookingEmailFailed"),
-        });
+      if (!result.ok) {
+        setStatusMessage({ type: "error", text: t("bookingError") });
         return;
       }
 
-      setStatusMessage({ type: "error", text: t("bookingError") });
+      const emailResult = await submitBookingToFormspree({
+        bookingId: result.id,
+        serviceName: selectedService.name,
+        dateLabel: formatLongDate(selectedDate, localeTag),
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        phone: formData.phone,
+        email: formData.email,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        photosCount: formData.photos.length,
+      });
+
+      setIsModalOpen(false);
+      setSelectedServiceId(null);
+      setStatusMessage({
+        type: emailResult.ok ? "success" : "error",
+        text: emailResult.ok ? t("bookingSuccess") : t("bookingEmailFailed"),
+      });
     } finally {
       setIsSubmitting(false);
     }

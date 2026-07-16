@@ -271,6 +271,7 @@ export function BookingModal({
                 </label>
                 <input
                   id="firstName"
+                  name="first_name"
                   type="text"
                   autoComplete="given-name"
                   value={firstName}
