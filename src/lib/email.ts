@@ -28,7 +28,7 @@ export type BookingEmailDetails = {
 };
 
 export type SendBookingEmailsResult =
-  | { ok: true; provider: "web3forms" | "smtp" | "resend"; customerNotified: boolean }
+  | { ok: true; provider: "formspree" | "smtp" | "resend"; customerNotified: boolean }
   | { ok: false; error: string };
 
 const confirmationSubjects: Record<string, string> = {
@@ -168,50 +168,54 @@ function formatProviderError(error: unknown): string {
   return "Unknown email error";
 }
 
-async function sendViaWeb3Forms(
+async function sendViaFormspree(
   details: BookingEmailDetails,
 ): Promise<SendBookingEmailsResult> {
-  const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
-  if (!accessKey) {
-    return { ok: false, error: "Web3Forms is not configured." };
+  const formId = process.env.FORMSPREE_FORM_ID;
+  if (!formId) {
+    return { ok: false, error: "Formspree is not configured." };
   }
 
   const mapLink = formatMapLink(details.latitude, details.longitude);
 
   try {
-    const response = await fetch("https://api.web3forms.com/submit", {
+    const response = await fetch(`https://formspree.io/f/${formId}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
       body: JSON.stringify({
-        access_key: accessKey,
-        subject: `New booking: ${details.serviceName} — ${details.date}`,
-        from_name: "S.cleaning Website",
-        name: `${details.firstName} ${details.lastName}`,
-        email: details.email,
-        phone: details.phone,
+        _subject: `New booking: ${details.serviceName} — ${details.date}`,
+        _replyto: details.email,
+        booking_id: details.bookingId,
         service: details.serviceName,
         date: details.date,
+        first_name: details.firstName,
+        last_name: details.lastName,
+        name: `${details.firstName} ${details.lastName}`,
+        phone: details.phone,
+        email: details.email,
         location: `${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
         map_link: mapLink,
-        photos_count: String(details.photos.length),
+        photos_count: details.photos.length,
         message: buildBookingMessage(details),
-        botcheck: false,
       }),
     });
 
-    const result = (await response.json()) as { success?: boolean; message?: string };
+    const result = (await response.json()) as { ok?: boolean; error?: string };
 
-    if (!response.ok || !result.success) {
-      console.error("Web3Forms error:", result);
+    if (!response.ok) {
+      console.error("Formspree error:", result);
       return {
         ok: false,
-        error: result.message ?? "Web3Forms failed to send the booking email.",
+        error: result.error ?? "Formspree failed to send the booking email.",
       };
     }
 
-    return { ok: true, provider: "web3forms", customerNotified: false };
+    return { ok: true, provider: "formspree", customerNotified: false };
   } catch (error) {
-    console.error("Web3Forms send error:", error);
+    console.error("Formspree send error:", error);
     return { ok: false, error: formatProviderError(error) };
   }
 }
@@ -336,32 +340,32 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
 export async function sendBookingEmails(
   details: BookingEmailDetails,
 ): Promise<SendBookingEmailsResult> {
-  const hasWeb3Forms = Boolean(process.env.WEB3FORMS_ACCESS_KEY);
+  const hasFormspree = Boolean(process.env.FORMSPREE_FORM_ID);
   const hasSmtp = Boolean(
     process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
   );
   const hasResend = Boolean(process.env.RESEND_API_KEY);
 
-  if (!hasWeb3Forms && !hasSmtp && !hasResend) {
+  if (!hasFormspree && !hasSmtp && !hasResend) {
     console.error(
-      "No email provider configured. Set WEB3FORMS_ACCESS_KEY, SMTP credentials, or RESEND_API_KEY.",
+      "No email provider configured. Set FORMSPREE_FORM_ID, SMTP credentials, or RESEND_API_KEY.",
     );
     return {
       ok: false,
       error:
-        "Email is not configured. Add WEB3FORMS_ACCESS_KEY (easiest) or SMTP / Resend credentials.",
+        "Email is not configured. Add FORMSPREE_FORM_ID (easiest on Vercel) or SMTP / Resend credentials.",
     };
   }
 
-  // Easiest setup: Web3Forms forwards bookings to your inbox automatically.
-  if (hasWeb3Forms) {
-    const web3Result = await sendViaWeb3Forms(details);
-    if (!web3Result.ok) {
-      return web3Result;
+  // Formspree works on Vercel free domains and from the server (unlike Web3Forms).
+  if (hasFormspree) {
+    const formspreeResult = await sendViaFormspree(details);
+    if (!formspreeResult.ok) {
+      return formspreeResult;
     }
 
     const customerNotified = await sendCustomerConfirmation(details);
-    return { ...web3Result, customerNotified };
+    return { ...formspreeResult, customerNotified };
   }
 
   if (hasSmtp) {
