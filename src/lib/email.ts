@@ -21,6 +21,8 @@ export type BookingEmailDetails = {
   lastName: string;
   phone: string;
   email: string;
+  address: string;
+  comments: string | null;
   latitude: number;
   longitude: number;
   photos: BookingEmailPhoto[];
@@ -61,8 +63,10 @@ function buildBookingMessage(details: BookingEmailDetails) {
     `Name: ${details.firstName} ${details.lastName}`,
     `Phone: ${details.phone}`,
     `Email: ${details.email}`,
+    `Address: ${details.address}`,
     `Location: ${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
     `Map: ${mapLink}`,
+    `Comments: ${details.comments?.trim() || "—"}`,
     `Photos: ${details.photos.length}`,
   ].join("\n");
 }
@@ -77,7 +81,9 @@ function buildBookingSummaryHtml(details: BookingEmailDetails) {
     <p><strong>Name:</strong> ${details.firstName} ${details.lastName}</p>
     <p><strong>Phone:</strong> ${details.phone}</p>
     <p><strong>Email:</strong> ${details.email}</p>
+    <p><strong>Address:</strong> ${details.address}</p>
     <p><strong>Location:</strong> <a href="${mapLink}">${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}</a></p>
+    <p><strong>Comments:</strong> ${details.comments?.trim() || "—"}</p>
     <p><strong>Photos attached:</strong> ${details.photos.length}</p>
   `;
 }
@@ -196,6 +202,8 @@ async function sendViaFormspree(
         name: `${details.firstName} ${details.lastName}`,
         phone: details.phone,
         email: details.email,
+        address: details.address,
+        comments: details.comments?.trim() || "",
         location: `${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
         map_link: mapLink,
         photos_count: details.photos.length,

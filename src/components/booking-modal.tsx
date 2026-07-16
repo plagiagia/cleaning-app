@@ -25,6 +25,8 @@ export type BookingFormData = {
   lastName: string;
   phone: string;
   email: string;
+  address: string;
+  comments: string;
   latitude: number;
   longitude: number;
   photos: { name: string; type: string; data: string }[];
@@ -40,7 +42,10 @@ type BookingModalProps = {
 };
 
 type FormErrors = Partial<
-  Record<"firstName" | "lastName" | "phone" | "email" | "location" | "photos", string>
+  Record<
+    "firstName" | "lastName" | "phone" | "email" | "address" | "location" | "photos",
+    string
+  >
 >;
 
 type PhotoPreview = {
@@ -81,6 +86,8 @@ export function BookingModal({
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [comments, setComments] = useState("");
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [photos, setPhotos] = useState<PhotoPreview[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -111,6 +118,8 @@ export function BookingModal({
       setLastName("");
       setPhone("");
       setEmail("");
+      setAddress("");
+      setComments("");
       setPosition(null);
       setPhotos((current) => {
         current.forEach((photo) => URL.revokeObjectURL(photo.previewUrl));
@@ -143,6 +152,9 @@ export function BookingModal({
     }
     if (!position) {
       nextErrors.location = t("formLocationRequired");
+    }
+    if (!address.trim()) {
+      nextErrors.address = t("formAddressRequired");
     }
 
     return nextErrors;
@@ -216,6 +228,8 @@ export function BookingModal({
       lastName: lastName.trim(),
       phone: phone.trim(),
       email: email.trim(),
+      address: address.trim(),
+      comments: comments.trim(),
       latitude: position.lat,
       longitude: position.lng,
       photos: photos.map(({ name, type, data }) => ({ name, type, data })),
@@ -349,6 +363,40 @@ export function BookingModal({
               {errors.location ? (
                 <p className="mt-1 text-xs text-coral-700">{errors.location}</p>
               ) : null}
+            </div>
+
+            <div>
+              <label htmlFor="address" className="mb-1 block text-sm font-medium text-slate-700">
+                {t("formAddress")}
+              </label>
+              <input
+                id="address"
+                name="address"
+                type="text"
+                autoComplete="street-address"
+                value={address}
+                onChange={(event) => setAddress(event.target.value)}
+                placeholder={t("formAddress")}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-teal-500 focus:ring-2"
+              />
+              {errors.address ? (
+                <p className="mt-1 text-xs text-coral-700">{errors.address}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <label htmlFor="comments" className="mb-1 block text-sm font-medium text-slate-700">
+                {t("formComments")}
+              </label>
+              <p className="mb-2 text-xs text-slate-500">{t("formCommentsHint")}</p>
+              <textarea
+                id="comments"
+                name="comments"
+                rows={3}
+                value={comments}
+                onChange={(event) => setComments(event.target.value)}
+                className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none ring-teal-500 focus:ring-2"
+              />
             </div>
 
             <div>

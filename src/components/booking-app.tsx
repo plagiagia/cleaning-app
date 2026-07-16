@@ -87,11 +87,12 @@ export function BookingApp({ services }: BookingAppProps) {
         lastName: formData.lastName,
         phone: formData.phone,
         email: formData.email,
+        address: formData.address,
+        comments: formData.comments,
         latitude: formData.latitude,
         longitude: formData.longitude,
         photos: formData.photos,
         locale,
-        serviceName: selectedService.name,
         dateLabel: formatLongDate(selectedDate, localeTag),
       });
 

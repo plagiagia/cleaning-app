@@ -2,6 +2,7 @@
 
 import { getPrisma } from "@/lib/prisma";
 import { sendBookingEmails, type BookingEmailPhoto } from "@/lib/email";
+import { translateService } from "@/lib/i18n/translate-service";
 
 export type BookingPhotoInput = BookingEmailPhoto;
 
@@ -12,11 +13,12 @@ export type CreateBookingInput = {
   lastName: string;
   phone: string;
   email: string;
+  address: string;
+  comments?: string;
   latitude: number;
   longitude: number;
   photos?: BookingPhotoInput[];
   locale?: string;
-  serviceName?: string;
   dateLabel?: string;
 };
 
@@ -42,6 +44,9 @@ function validateInput(input: CreateBookingInput): string | null {
   }
   if (!input.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim())) {
     return "Valid email is required.";
+  }
+  if (!input.address?.trim()) {
+    return "Address is required.";
   }
   if (
     typeof input.latitude !== "number" ||
@@ -80,17 +85,22 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
     const prisma = getPrisma();
     const photos = input.photos ?? [];
 
-    const service =
-      input.serviceName != null
-        ? { name: input.serviceName }
-        : await prisma.service.findUnique({
-            where: { id: input.serviceId },
-            select: { name: true },
-          });
+    const service = await prisma.service.findUnique({
+      where: { id: input.serviceId },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        emoji: true,
+      },
+    });
 
     if (!service) {
       return { ok: false, error: "Service not found." };
     }
+
+    const greekService = translateService(service, "el");
 
     const booking = await prisma.booking.create({
       data: {
@@ -100,6 +110,8 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
         lastName: input.lastName.trim(),
         phone: input.phone.trim(),
         email: input.email.trim(),
+        address: input.address.trim(),
+        comments: input.comments?.trim() || null,
         latitude: input.latitude,
         longitude: input.longitude,
         photos: photos.length > 0 ? photos : undefined,
@@ -108,12 +120,14 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
 
     const emailResult = await sendBookingEmails({
       bookingId: booking.id,
-      serviceName: service.name,
+      serviceName: greekService.name,
       date: input.dateLabel ?? input.date,
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
       phone: input.phone.trim(),
       email: input.email.trim(),
+      address: input.address.trim(),
+      comments: input.comments?.trim() || null,
       latitude: input.latitude,
       longitude: input.longitude,
       photos,

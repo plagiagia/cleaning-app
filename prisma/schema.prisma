@@ -29,6 +29,8 @@ model Booking {
   lastName  String
   phone     String
   email     String
+  address   String
+  comments  String?
   latitude  Float
   longitude Float
   photos    Json?
