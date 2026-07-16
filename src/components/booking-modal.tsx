@@ -288,6 +288,7 @@ export function BookingModal({
                 </label>
                 <input
                   id="lastName"
+                  name="last_name"
                   type="text"
                   autoComplete="family-name"
                   value={lastName}
@@ -306,6 +307,7 @@ export function BookingModal({
               </label>
               <input
                 id="phone"
+                name="phone"
                 type="tel"
                 autoComplete="tel"
                 inputMode="tel"
@@ -324,6 +326,7 @@ export function BookingModal({
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 autoComplete="email"
                 inputMode="email"

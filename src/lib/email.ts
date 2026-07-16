@@ -171,10 +171,10 @@ function formatProviderError(error: unknown): string {
 async function sendViaFormspree(
   details: BookingEmailDetails,
 ): Promise<SendBookingEmailsResult> {
-  const formId = process.env.FORMSPREE_FORM_ID;
-  if (!formId) {
-    return { ok: false, error: "Formspree is not configured." };
-  }
+  const formId =
+    process.env.FORMSPREE_FORM_ID ??
+    process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID ??
+    "xpqvqvel";
 
   const mapLink = formatMapLink(details.latitude, details.longitude);
 
@@ -340,24 +340,21 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
 export async function sendBookingEmails(
   details: BookingEmailDetails,
 ): Promise<SendBookingEmailsResult> {
-  const hasFormspree = Boolean(process.env.FORMSPREE_FORM_ID);
+  const formId =
+    process.env.FORMSPREE_FORM_ID ??
+    process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID ??
+    "xpqvqvel";
+  const hasFormspree = Boolean(formId);
   const hasSmtp = Boolean(
     process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
   );
   const hasResend = Boolean(process.env.RESEND_API_KEY);
 
   if (!hasFormspree && !hasSmtp && !hasResend) {
-    console.error(
-      "No email provider configured. Set FORMSPREE_FORM_ID, SMTP credentials, or RESEND_API_KEY.",
-    );
-    return {
-      ok: false,
-      error:
-        "Email is not configured. Add FORMSPREE_FORM_ID (easiest on Vercel) or SMTP / Resend credentials.",
-    };
+    console.error("No email provider configured.");
+    return { ok: false, error: "Email is not configured." };
   }
 
-  // Formspree works on Vercel free domains and from the server (unlike Web3Forms).
   if (hasFormspree) {
     const formspreeResult = await sendViaFormspree(details);
     if (!formspreeResult.ok) {

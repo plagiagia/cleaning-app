@@ -1,7 +1,7 @@
 "use server";
 
 import { getPrisma } from "@/lib/prisma";
-import type { BookingEmailPhoto } from "@/lib/email";
+import { sendBookingEmails, type BookingEmailPhoto } from "@/lib/email";
 
 export type BookingPhotoInput = BookingEmailPhoto;
 
@@ -20,7 +20,9 @@ export type CreateBookingInput = {
   dateLabel?: string;
 };
 
-export type CreateBookingResult = { ok: true; id: string } | { ok: false; error: string };
+export type CreateBookingResult =
+  | { ok: true; id: string; emailSent: boolean }
+  | { ok: false; error: string };
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_SIZE_BYTES = 4 * 1024 * 1024;
@@ -104,7 +106,25 @@ export async function createBooking(input: CreateBookingInput): Promise<CreateBo
       },
     });
 
-    return { ok: true, id: booking.id };
+    const emailResult = await sendBookingEmails({
+      bookingId: booking.id,
+      serviceName: service.name,
+      date: input.dateLabel ?? input.date,
+      firstName: input.firstName.trim(),
+      lastName: input.lastName.trim(),
+      phone: input.phone.trim(),
+      email: input.email.trim(),
+      latitude: input.latitude,
+      longitude: input.longitude,
+      photos,
+      locale: input.locale ?? "el",
+    });
+
+    if (!emailResult.ok) {
+      console.error("Booking saved but email failed:", emailResult.error);
+    }
+
+    return { ok: true, id: booking.id, emailSent: emailResult.ok };
   } catch (error) {
     console.error("Failed to create booking:", error);
     return { ok: false, error: "Αποτυχία αποθήκευσης κράτησης. Δοκιμάστε ξανά." };
