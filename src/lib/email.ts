@@ -28,7 +28,7 @@ export type BookingEmailDetails = {
 };
 
 export type SendBookingEmailsResult =
-  | { ok: true; provider: "smtp" | "resend" }
+  | { ok: true; provider: "web3forms" | "smtp" | "resend"; customerNotified: boolean }
   | { ok: false; error: string };
 
 const confirmationSubjects: Record<string, string> = {
@@ -51,7 +51,23 @@ function buildPhotoAttachments(photos: BookingEmailPhoto[]) {
   }));
 }
 
-function buildBookingSummary(details: BookingEmailDetails) {
+function buildBookingMessage(details: BookingEmailDetails) {
+  const mapLink = formatMapLink(details.latitude, details.longitude);
+
+  return [
+    `Booking ID: ${details.bookingId}`,
+    `Service: ${details.serviceName}`,
+    `Date: ${details.date}`,
+    `Name: ${details.firstName} ${details.lastName}`,
+    `Phone: ${details.phone}`,
+    `Email: ${details.email}`,
+    `Location: ${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
+    `Map: ${mapLink}`,
+    `Photos: ${details.photos.length}`,
+  ].join("\n");
+}
+
+function buildBookingSummaryHtml(details: BookingEmailDetails) {
   const mapLink = formatMapLink(details.latitude, details.longitude);
 
   return `
@@ -152,6 +168,95 @@ function formatProviderError(error: unknown): string {
   return "Unknown email error";
 }
 
+async function sendViaWeb3Forms(
+  details: BookingEmailDetails,
+): Promise<SendBookingEmailsResult> {
+  const accessKey = process.env.WEB3FORMS_ACCESS_KEY;
+  if (!accessKey) {
+    return { ok: false, error: "Web3Forms is not configured." };
+  }
+
+  const mapLink = formatMapLink(details.latitude, details.longitude);
+
+  try {
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: accessKey,
+        subject: `New booking: ${details.serviceName} — ${details.date}`,
+        from_name: "S.cleaning Website",
+        name: `${details.firstName} ${details.lastName}`,
+        email: details.email,
+        phone: details.phone,
+        service: details.serviceName,
+        date: details.date,
+        location: `${details.latitude.toFixed(6)}, ${details.longitude.toFixed(6)}`,
+        map_link: mapLink,
+        photos_count: String(details.photos.length),
+        message: buildBookingMessage(details),
+        botcheck: false,
+      }),
+    });
+
+    const result = (await response.json()) as { success?: boolean; message?: string };
+
+    if (!response.ok || !result.success) {
+      console.error("Web3Forms error:", result);
+      return {
+        ok: false,
+        error: result.message ?? "Web3Forms failed to send the booking email.",
+      };
+    }
+
+    return { ok: true, provider: "web3forms", customerNotified: false };
+  } catch (error) {
+    console.error("Web3Forms send error:", error);
+    return { ok: false, error: formatProviderError(error) };
+  }
+}
+
+async function sendCustomerConfirmation(
+  details: BookingEmailDetails,
+): Promise<boolean> {
+  const transport = getSmtpTransport();
+  const confirmation = buildConfirmationBody(details);
+
+  if (transport) {
+    try {
+      await transport.sendMail({
+        from: FROM_EMAIL,
+        to: details.email,
+        subject: confirmation.subject,
+        html: confirmation.html,
+      });
+      return true;
+    } catch (error) {
+      console.error("Customer confirmation via SMTP failed:", error);
+    }
+  }
+
+  const resend = getResendClient();
+  if (resend) {
+    try {
+      const customerResult = await resend.emails.send({
+        from: FROM_EMAIL,
+        to: details.email,
+        subject: confirmation.subject,
+        html: confirmation.html,
+      });
+      if (!customerResult.error) {
+        return true;
+      }
+      console.error("Customer confirmation via Resend failed:", customerResult.error);
+    } catch (error) {
+      console.error("Customer confirmation via Resend failed:", error);
+    }
+  }
+
+  return false;
+}
+
 async function sendViaSmtp(details: BookingEmailDetails): Promise<SendBookingEmailsResult> {
   const transport = getSmtpTransport();
   if (!transport) {
@@ -167,7 +272,7 @@ async function sendViaSmtp(details: BookingEmailDetails): Promise<SendBookingEma
       to: COMPANY_EMAIL,
       replyTo: details.email,
       subject: `New booking: ${details.serviceName} — ${details.date}`,
-      html: buildBookingSummary(details),
+      html: buildBookingSummaryHtml(details),
       attachments,
     });
 
@@ -178,7 +283,7 @@ async function sendViaSmtp(details: BookingEmailDetails): Promise<SendBookingEma
       html: confirmation.html,
     });
 
-    return { ok: true, provider: "smtp" };
+    return { ok: true, provider: "smtp", customerNotified: true };
   } catch (error) {
     console.error("SMTP email send error:", error);
     return { ok: false, error: formatProviderError(error) };
@@ -200,7 +305,7 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
       to: COMPANY_EMAIL,
       replyTo: details.email,
       subject: `New booking: ${details.serviceName} — ${details.date}`,
-      html: buildBookingSummary(details),
+      html: buildBookingSummaryHtml(details),
       attachments: attachments.length > 0 ? attachments : undefined,
     });
 
@@ -221,7 +326,7 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
       return { ok: false, error: formatProviderError(customerResult.error) };
     }
 
-    return { ok: true, provider: "resend" };
+    return { ok: true, provider: "resend", customerNotified: true };
   } catch (error) {
     console.error("Resend email send error:", error);
     return { ok: false, error: formatProviderError(error) };
@@ -231,20 +336,32 @@ async function sendViaResend(details: BookingEmailDetails): Promise<SendBookingE
 export async function sendBookingEmails(
   details: BookingEmailDetails,
 ): Promise<SendBookingEmailsResult> {
+  const hasWeb3Forms = Boolean(process.env.WEB3FORMS_ACCESS_KEY);
   const hasSmtp = Boolean(
     process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
   );
   const hasResend = Boolean(process.env.RESEND_API_KEY);
 
-  if (!hasSmtp && !hasResend) {
+  if (!hasWeb3Forms && !hasSmtp && !hasResend) {
     console.error(
-      "No email provider configured. Set SMTP_HOST/SMTP_USER/SMTP_PASS or RESEND_API_KEY.",
+      "No email provider configured. Set WEB3FORMS_ACCESS_KEY, SMTP credentials, or RESEND_API_KEY.",
     );
     return {
       ok: false,
       error:
-        "Email is not configured. Add SMTP credentials or a Resend API key in environment variables.",
+        "Email is not configured. Add WEB3FORMS_ACCESS_KEY (easiest) or SMTP / Resend credentials.",
     };
+  }
+
+  // Easiest setup: Web3Forms forwards bookings to your inbox automatically.
+  if (hasWeb3Forms) {
+    const web3Result = await sendViaWeb3Forms(details);
+    if (!web3Result.ok) {
+      return web3Result;
+    }
+
+    const customerNotified = await sendCustomerConfirmation(details);
+    return { ...web3Result, customerNotified };
   }
 
   if (hasSmtp) {
